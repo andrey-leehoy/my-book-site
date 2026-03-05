@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function Chapter1() {
   const router = useRouter()
+  const [isMobile, setIsMobile] = useState(false)
 
   // Проверка авторизации
   useEffect(() => {
@@ -19,6 +20,18 @@ export default function Chapter1() {
 
     checkAuth()
   }, [router])
+
+  // Проверка экрана
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkScreen()
+    window.addEventListener('resize', checkScreen)
+
+    return () => window.removeEventListener('resize', checkScreen)
+  }, [])
 
   return (
     <div
@@ -47,22 +60,37 @@ export default function Chapter1() {
       {/* КОНТЕНТ */}
       <div className="max-w-3xl mx-auto px-6 space-y-6 pb-12">
 
-        <img src="/rp1.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp2.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp3.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp4.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp5.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp6.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp7.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp8.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp9.png" draggable={false} className="w-full rounded-2xl" />
+        {isMobile ? (
+          <>
+            <img src="/mobile/rp1m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp2m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp3m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp4m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp5m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp6m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp7m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp8m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp9m.png" draggable={false} className="w-full rounded-2xl" />
+          </>
+        ) : (
+          <>
+            <img src="/rp1.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/rp2.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/rp3.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/rp4.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/rp5.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/rp6.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/rp7.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/rp8.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/rp9.png" draggable={false} className="w-full rounded-2xl" />
+          </>
+        )}
 
       </div>
 
       {/* НАВИГАЦИЯ */}
       <div className="max-w-3xl mx-auto px-6 pb-16 relative flex items-center justify-center">
 
-        {/* На главную (центр) */}
         <button
           onClick={() => router.push('/')}
           className="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
@@ -70,7 +98,6 @@ export default function Chapter1() {
           На главную
         </button>
 
-        {/* Глава 2 (справа) */}
         <button
           onClick={() => router.push('/chapter2')}
           className="absolute right-6 px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
