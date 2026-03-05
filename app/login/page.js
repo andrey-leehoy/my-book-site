@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
+
   const router = useRouter()
 
   const [email, setEmail] = useState('')
@@ -15,69 +16,85 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
+    // 1️⃣ Логин
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
-      alert(error.message)
+    if (error || !data.user) {
+      alert(error?.message || 'Ошибка входа')
       setLoading(false)
       return
     }
 
     const user = data.user
-    if (!user) return
 
-    // device id
-    let deviceId = localStorage.getItem('device_id')
-    if (!deviceId) {
-      deviceId = crypto.randomUUID()
-      localStorage.setItem('device_id', deviceId)
-    }
-
-    // получаем устройства
-    const { data: devices } = await supabase
+    // 2️⃣ Проверяем устройства
+    const { data: devices, error: devicesError } = await supabase
       .from('user_devices')
       .select('*')
       .eq('user_id', user.id)
 
-    const isNewDevice = !devices.find(d => d.device_id === deviceId)
-
-    // лимит 3 устройства
-    if (isNewDevice && devices.length >= 3) {
-      alert('Достигнут лимит устройств (максимум 3).')
+    if (devicesError) {
+      alert('Ошибка проверки устройств')
       await supabase.auth.signOut()
       setLoading(false)
       return
     }
 
-    // сохраняем новое устройство
-    if (isNewDevice) {
-      await supabase.from('user_devices').insert({
+    // 3️⃣ Лимит 3 устройства
+    if (devices.length >= 3) {
+      await supabase.auth.signOut()
+      alert('Достигнут лимит устройств (3)')
+      setLoading(false)
+      return
+    }
+
+    // 4️⃣ Создаём device_id
+    const deviceId = crypto.randomUUID()
+
+    const { error: insertError } = await supabase
+      .from('user_devices')
+      .insert({
         user_id: user.id,
         device_id: deviceId,
       })
+
+    if (insertError) {
+      alert('Ошибка сохранения устройства')
+      await supabase.auth.signOut()
+      setLoading(false)
+      return
     }
 
-    router.push('/')
+    // 5️⃣ Сохраняем в браузере
+    localStorage.setItem('device_id', deviceId)
+
+    // 6️⃣ Переход на главную
+    router.replace('/')
+
     setLoading(false)
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0f1115] text-white">
+
       <form
         onSubmit={handleLogin}
-        className="w-full max-w-sm bg-[#161a20] p-8 rounded-2xl border border-zinc-800"
+        className="bg-zinc-900 p-8 rounded-2xl w-80 space-y-4 border border-white/10"
       >
-        <h1 className="text-2xl mb-6 text-center">Вход</h1>
+
+        <h1 className="text-2xl font-semibold text-center">
+          Вход
+        </h1>
 
         <input
           type="email"
           placeholder="Логин"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 p-3 rounded-lg bg-[#0f1115] border border-zinc-700"
+          className="w-full p-3 rounded-lg bg-zinc-800 border border-white/10"
           required
         />
 
@@ -86,18 +103,20 @@ export default function LoginPage() {
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-6 p-3 rounded-lg bg-[#0f1115] border border-zinc-700"
+          className="w-full p-3 rounded-lg bg-zinc-800 border border-white/10"
           required
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 rounded-lg bg-zinc-800 border border-zinc-700 hover:border-zinc-500 transition"
+          className="w-full py-3 bg-white text-black rounded-lg hover:opacity-80 transition"
         >
           {loading ? 'Вход...' : 'Войти'}
         </button>
+
       </form>
+
     </div>
   )
 }
