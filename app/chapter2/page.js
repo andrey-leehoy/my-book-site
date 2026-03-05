@@ -54,7 +54,6 @@ export default function Chapter2() {
         <img src="/rp2-6.png" draggable={false} className="w-full rounded-2xl" />
         <img src="/rp2-7.png" draggable={false} className="w-full rounded-2xl" />
         <img src="/rp2-8.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp2-9.png" draggable={false} className="w-full rounded-2xl" />
 
       </div>
 
