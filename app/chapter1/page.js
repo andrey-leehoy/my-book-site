@@ -20,30 +20,13 @@ export default function Chapter1() {
     checkAuth()
   }, [router])
 
-  // Блокировка горячих клавиш
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (
-        e.key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
-        (e.ctrlKey && e.key === 'U')
-      ) {
-        e.preventDefault()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
   return (
     <div
       className="min-h-screen bg-[#0f1115] text-white select-none"
       onContextMenu={(e) => e.preventDefault()}
     >
 
-      {/* Хедер */}
+      {/* ХЕДЕР */}
       <div className="relative h-64 w-full overflow-hidden">
         <img
           src="/chapter1header.jpg"
@@ -54,7 +37,7 @@ export default function Chapter1() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f1115]/40 to-[#0f1115]" />
       </div>
 
-      {/* Контент */}
+      {/* КОНТЕНТ */}
       <div className="max-w-3xl mx-auto px-6 py-12 space-y-6">
 
         <img src="/rp1.png" draggable={false} className="w-full rounded-2xl" />
@@ -66,6 +49,27 @@ export default function Chapter1() {
         <img src="/rp7.png" draggable={false} className="w-full rounded-2xl" />
         <img src="/rp8.png" draggable={false} className="w-full rounded-2xl" />
         <img src="/rp9.png" draggable={false} className="w-full rounded-2xl" />
+
+      </div>
+
+      {/* НАВИГАЦИЯ ВНИЗУ */}
+      <div className="max-w-3xl mx-auto px-6 pb-16 relative flex items-center justify-center">
+
+        {/* Кнопка на главную (по центру) */}
+        <button
+          onClick={() => router.push('/')}
+          className="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
+        >
+          На главную
+        </button>
+
+        {/* Кнопка справа */}
+        <button
+          onClick={() => router.push('/chapter2')}
+          className="absolute right-6 px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
+        >
+          Глава 2
+        </button>
 
       </div>
 
