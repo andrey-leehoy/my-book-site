@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 export default function Chapter2() {
   const router = useRouter()
 
-  // Проверка авторизации
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession()
@@ -55,12 +54,20 @@ export default function Chapter2() {
         <img src="/rp2-6.png" draggable={false} className="w-full rounded-2xl" />
         <img src="/rp2-7.png" draggable={false} className="w-full rounded-2xl" />
         <img src="/rp2-8.png" draggable={false} className="w-full rounded-2xl" />
-        <img src="/rp9.png" draggable={false} className="w-full rounded-2xl" />
+        <img src="/rp2-9.png" draggable={false} className="w-full rounded-2xl" />
 
       </div>
 
       {/* НАВИГАЦИЯ */}
-      <div className="max-w-3xl mx-auto px-6 pb-16 relative flex items-center justify-center">
+      <div className="max-w-3xl mx-auto px-6 pb-16 flex justify-between items-center">
+
+        {/* Предыдущая глава */}
+        <button
+          onClick={() => router.push('/chapter1')}
+          className="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
+        >
+          Глава 1
+        </button>
 
         {/* На главную */}
         <button
@@ -70,10 +77,10 @@ export default function Chapter2() {
           На главную
         </button>
 
-        {/* Следующая глава */}
+       {/* Следующая глава */}
         <button
           onClick={() => router.push('/chapter3')}
-          className="absolute right-6 px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
+          className="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
         >
           Глава 3
         </button>
