@@ -1,57 +1,108 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const router = useRouter()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function handleLogin() {
+  const handleLogin = async (e) => {
+    e.preventDefault()
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    // 1️⃣ Вход
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    setLoading(false)
-
-    if (!error) {
-      router.push('/chapter1')
-    } else {
-      alert('Ошибка входа')
+    if (error) {
+      alert(error.message)
+      setLoading(false)
+      return
     }
+
+    const user = data.user
+
+    if (!user) {
+      setLoading(false)
+      return
+    }
+
+    // 2️⃣ Получаем или создаём device_id
+    let deviceId = localStorage.getItem('device_id')
+
+    if (!deviceId) {
+      deviceId = crypto.randomUUID()
+      localStorage.setItem('device_id', deviceId)
+    }
+
+    // 3️⃣ Проверяем устройства пользователя
+    const { data: devices, error: devicesError } = await supabase
+      .from('user_devices')
+      .select('*')
+      .eq('user_id', user.id)
+
+    if (devicesError) {
+      alert(devicesError.message)
+      setLoading(false)
+      return
+    }
+
+    const isNewDevice = !devices.find(
+      (d) => d.device_id === deviceId
+    )
+
+    // 4️⃣ Если это новое устройство и лимит достигнут
+    if (isNewDevice && devices.length >= 3) {
+      alert('Достигнут лимит устройств (максимум 3).')
+      await supabase.auth.signOut()
+      setLoading(false)
+      return
+    }
+
+    // 5️⃣ Если новое устройство — сохраняем его
+    if (isNewDevice) {
+      const { error: insertError } = await supabase
+        .from('user_devices')
+        .insert({
+          user_id: user.id,
+          device_id: deviceId,
+        })
+
+      if (insertError) {
+        alert(insertError.message)
+        setLoading(false)
+        return
+      }
+    }
+
+    // 6️⃣ Переход на главную
+    router.push('/')
+    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#1c1f24] to-[#0f1115] text-white relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#0f1115] text-white">
 
-      {/* Сплющенный мягкий свет */}
-      <div
-        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.07), transparent 70%)',
-        }}
-      />
-
-      {/* Карточка */}
-      <div className="w-full max-w-sm p-8 rounded-2xl bg-zinc-900 border border-zinc-800 relative z-10">
-
-        <h1 className="text-2xl font-semibold mb-6 text-center">
-          Вход в библиотеку
-        </h1>
+      <form
+        onSubmit={handleLogin}
+        className="w-full max-w-sm bg-[#161a20] p-8 rounded-2xl border border-zinc-800"
+      >
+        <h1 className="text-2xl mb-6 text-center">Вход</h1>
 
         <input
           type="email"
           placeholder="Логин"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:border-zinc-500 transition"
+          className="w-full mb-4 p-3 rounded-lg bg-[#0f1115] border border-zinc-700"
+          required
         />
 
         <input
@@ -59,18 +110,19 @@ export default function LoginPage() {
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-6 px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:border-zinc-500 transition"
+          className="w-full mb-6 p-3 rounded-lg bg-[#0f1115] border border-zinc-700"
+          required
         />
 
         <button
-          onClick={handleLogin}
+          type="submit"
           disabled={loading}
-          className="w-full py-2 rounded-lg bg-white text-black font-medium hover:bg-gray-200 transition"
+          className="w-full py-3 rounded-lg bg-zinc-800 border border-zinc-700 hover:border-zinc-500 transition"
         >
-          {loading ? 'Входим...' : 'Войти'}
+          {loading ? 'Вход...' : 'Войти'}
         </button>
+      </form>
 
-      </div>
     </div>
   )
 }
