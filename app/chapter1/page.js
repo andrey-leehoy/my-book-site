@@ -71,6 +71,15 @@ export default function Chapter1() {
             <img src="/mobile/rp7m.png" draggable={false} className="w-full rounded-2xl" />
             <img src="/mobile/rp8m.png" draggable={false} className="w-full rounded-2xl" />
             <img src="/mobile/rp9m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp10m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp11m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp12m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp13m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp14m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp15m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp16m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp17m.png" draggable={false} className="w-full rounded-2xl" />
+            <img src="/mobile/rp18m.png" draggable={false} className="w-full rounded-2xl" />
           </>
         ) : (
           <>
