@@ -39,7 +39,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0f1115] text-white relative">
 
-      {/* КНОПКА ВЫХОДА */}
+      {/* Кнопка выхода */}
       <div className="fixed top-6 right-6 z-50">
         <button
           onClick={handleLogout}
@@ -49,7 +49,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* ХЕДЕР */}
+      {/* Хедер */}
       <div className="relative h-72 w-full overflow-hidden">
         <img
           src="/header.jpg"
@@ -59,38 +59,78 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f1115]/40 to-[#0f1115]" />
       </div>
 
-      {/* НАЗВАНИЕ */}
+      {/* Название */}
       <div className="text-center mt-10 mb-12">
         <h1 className="text-4xl font-semibold">
           Случайный Прометей
         </h1>
       </div>
 
-      {/* ГЛАВЫ */}
+      {/* Главы */}
       <div className="max-w-5xl mx-auto px-6 pb-20 grid grid-cols-2 gap-6">
 
+        {/* Глава 1 */}
         <a href="/chapter1" className="relative h-40 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition">
-          <img src="/chapter1header.jpg" className="absolute right-0 h-full w-2/3 object-cover opacity-80"/>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1115] to-transparent"/>
-          <div className="relative z-10 p-6">Глава 1</div>
+
+          <img
+            src="/chapter1header.jpg"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1115] via-[#0f1115]/60 to-transparent" />
+
+          <div className="relative z-10 p-6 text-lg font-medium">
+            Глава 1
+          </div>
+
         </a>
 
+        {/* Глава 2 */}
         <a href="/chapter2" className="relative h-40 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition">
-          <img src="/chapter2header.jpg" className="absolute right-0 h-full w-2/3 object-cover opacity-80"/>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1115] to-transparent"/>
-          <div className="relative z-10 p-6">Глава 2</div>
+
+          <img
+            src="/chapter2header.jpg"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1115] via-[#0f1115]/60 to-transparent" />
+
+          <div className="relative z-10 p-6 text-lg font-medium">
+            Глава 2
+          </div>
+
         </a>
 
+        {/* Глава 3 */}
         <a href="/chapter3" className="relative h-40 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition">
-          <img src="/chapter3header.jpg" className="absolute right-0 h-full w-2/3 object-cover opacity-80"/>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1115] to-transparent"/>
-          <div className="relative z-10 p-6">Глава 3</div>
+
+          <img
+            src="/chapter3header.jpg"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1115] via-[#0f1115]/60 to-transparent" />
+
+          <div className="relative z-10 p-6 text-lg font-medium">
+            Глава 3
+          </div>
+
         </a>
 
+        {/* Глава 4 */}
         <a href="/chapter4" className="relative h-40 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition">
-          <img src="/chapter4header.jpg" className="absolute right-0 h-full w-2/3 object-cover opacity-80"/>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1115] to-transparent"/>
-          <div className="relative z-10 p-6">Глава 4</div>
+
+          <img
+            src="/chapter4header.jpg"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1115] via-[#0f1115]/60 to-transparent" />
+
+          <div className="relative z-10 p-6 text-lg font-medium">
+            Глава 4
+          </div>
+
         </a>
 
       </div>
