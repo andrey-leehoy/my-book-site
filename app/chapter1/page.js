@@ -37,8 +37,15 @@ export default function Chapter1() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f1115]/40 to-[#0f1115]" />
       </div>
 
+      {/* ЗАГОЛОВОК */}
+      <div className="max-w-3xl mx-auto px-6 pt-12">
+        <h1 className="text-3xl font-semibold text-center mb-10">
+          Глава 1
+        </h1>
+      </div>
+
       {/* КОНТЕНТ */}
-      <div className="max-w-3xl mx-auto px-6 py-12 space-y-6">
+      <div className="max-w-3xl mx-auto px-6 space-y-6 pb-12">
 
         <img src="/rp1.png" draggable={false} className="w-full rounded-2xl" />
         <img src="/rp2.png" draggable={false} className="w-full rounded-2xl" />
@@ -52,10 +59,10 @@ export default function Chapter1() {
 
       </div>
 
-      {/* НАВИГАЦИЯ ВНИЗУ */}
+      {/* НАВИГАЦИЯ */}
       <div className="max-w-3xl mx-auto px-6 pb-16 relative flex items-center justify-center">
 
-        {/* Кнопка на главную (по центру) */}
+        {/* На главную (центр) */}
         <button
           onClick={() => router.push('/')}
           className="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
@@ -63,7 +70,7 @@ export default function Chapter1() {
           На главную
         </button>
 
-        {/* Кнопка справа */}
+        {/* Глава 2 (справа) */}
         <button
           onClick={() => router.push('/chapter2')}
           className="absolute right-6 px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
