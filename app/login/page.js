@@ -15,7 +15,6 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    // 1️⃣ Вход
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -28,37 +27,24 @@ export default function LoginPage() {
     }
 
     const user = data.user
+    if (!user) return
 
-    if (!user) {
-      setLoading(false)
-      return
-    }
-
-    // 2️⃣ Получаем или создаём device_id
+    // device id
     let deviceId = localStorage.getItem('device_id')
-
     if (!deviceId) {
       deviceId = crypto.randomUUID()
       localStorage.setItem('device_id', deviceId)
     }
 
-    // 3️⃣ Проверяем устройства пользователя
-    const { data: devices, error: devicesError } = await supabase
+    // получаем устройства
+    const { data: devices } = await supabase
       .from('user_devices')
       .select('*')
       .eq('user_id', user.id)
 
-    if (devicesError) {
-      alert(devicesError.message)
-      setLoading(false)
-      return
-    }
+    const isNewDevice = !devices.find(d => d.device_id === deviceId)
 
-    const isNewDevice = !devices.find(
-      (d) => d.device_id === deviceId
-    )
-
-    // 4️⃣ Если это новое устройство и лимит достигнут
+    // лимит 3 устройства
     if (isNewDevice && devices.length >= 3) {
       alert('Достигнут лимит устройств (максимум 3).')
       await supabase.auth.signOut()
@@ -66,30 +52,20 @@ export default function LoginPage() {
       return
     }
 
-    // 5️⃣ Если новое устройство — сохраняем его
+    // сохраняем новое устройство
     if (isNewDevice) {
-      const { error: insertError } = await supabase
-        .from('user_devices')
-        .insert({
-          user_id: user.id,
-          device_id: deviceId,
-        })
-
-      if (insertError) {
-        alert(insertError.message)
-        setLoading(false)
-        return
-      }
+      await supabase.from('user_devices').insert({
+        user_id: user.id,
+        device_id: deviceId,
+      })
     }
 
-    // 6️⃣ Переход на главную
     router.push('/')
     setLoading(false)
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0f1115] text-white">
-
       <form
         onSubmit={handleLogin}
         className="w-full max-w-sm bg-[#161a20] p-8 rounded-2xl border border-zinc-800"
@@ -122,7 +98,6 @@ export default function LoginPage() {
           {loading ? 'Вход...' : 'Войти'}
         </button>
       </form>
-
     </div>
   )
 }

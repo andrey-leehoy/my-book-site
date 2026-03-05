@@ -10,19 +10,39 @@ export default function Chapter1() {
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
+
     const checkAuth = async () => {
+
       const { data } = await supabase.auth.getSession()
 
       if (!data.session) {
         router.replace('/login')
-      } else {
-        setAuthorized(true)
+        return
       }
 
+      const session = data.session
+
+      // 👇 ВОТ ЗДЕСЬ ДОБАВЛЯЕМ ПРОВЕРКУ УСТРОЙСТВ
+
+      const { data: devices } = await supabase
+        .from('user_devices')
+        .select('*')
+        .eq('user_id', session.user.id)
+
+      if (devices.length > 3) {
+        await supabase.auth.signOut()
+        router.replace('/login')
+        return
+      }
+
+      // 👆 конец проверки устройств
+
+      setAuthorized(true)
       setChecking(false)
     }
 
     checkAuth()
+
   }, [])
 
   if (checking) {
@@ -36,18 +56,14 @@ export default function Chapter1() {
   if (!authorized) return null
 
   return (
-    <div
-      className="min-h-screen bg-[#0f1115] text-white select-none"
-      onContextMenu={(e) => e.preventDefault()}
-    >
+    <div className="min-h-screen bg-[#0f1115] text-white">
 
       {/* Хедер */}
       <div className="relative h-64 w-full overflow-hidden">
         <img
           src="/chapter1header.jpg"
-          className="w-full h-full object-cover pointer-events-none"
+          className="w-full h-full object-cover"
           alt="Header"
-          draggable={false}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f1115]/40 to-[#0f1115]" />
       </div>
@@ -58,55 +74,20 @@ export default function Chapter1() {
           Глава 1 — Начало
         </h1>
 
-        {/* Картинки */}
-        <div className="space-y-6 mb-12 relative">
-
-          <div className="absolute inset-0 z-10" />
-
-          {[
-            '/rp1.png',
-            '/rp2.png',
-            '/rp3.png',
-            '/rp4.png',
-            '/rp5.png',
-            '/rp6.png',
-            '/rp7.png',
-            '/rp8.png',
-            '/rp9.png',
-          ].map((src, index) => (
-            <img
-              key={index}
-              src={src}
-              className="w-full rounded-2xl pointer-events-none"
-              draggable={false}
-              alt=""
-            />
-          ))}
-
-        </div>
-
-        {/* Навигация */}
-        <div className="flex justify-between items-center">
-
-          <div className="w-32"></div>
-
-          <button
-            onClick={() => router.push('/')}
-            className="px-6 py-2 rounded-lg bg-zinc-800 border border-zinc-700 hover:border-zinc-500 transition"
-          >
-            На главную
-          </button>
-
-          <button
-            onClick={() => router.push('/chapter2')}
-            className="px-6 py-2 rounded-lg bg-zinc-800 border border-zinc-700 hover:border-zinc-500 transition"
-          >
-            Следующая глава →
-          </button>
-
+        <div className="space-y-6">
+          <img src="/rp1.png" className="w-full" />
+          <img src="/rp2.png" className="w-full" />
+          <img src="/rp3.png" className="w-full" />
+          <img src="/rp4.png" className="w-full" />
+          <img src="/rp5.png" className="w-full" />
+          <img src="/rp6.png" className="w-full" />
+          <img src="/rp7.png" className="w-full" />
+          <img src="/rp8.png" className="w-full" />
+          <img src="/rp9.png" className="w-full" />
         </div>
 
       </div>
+
     </div>
   )
 }
