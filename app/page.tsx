@@ -3,12 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { User } from '@supabase/supabase-js'
 
 export default function Home() {
   const router = useRouter()
-
-  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -20,7 +17,6 @@ export default function Home() {
         return
       }
 
-      setUser(data.session.user)
       setLoading(false)
     }
 
