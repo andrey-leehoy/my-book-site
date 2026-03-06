@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { v4 as uuidv4 } from 'uuid'
+import { useRouter } from 'next/navigation'
 
 export default function Login() {
 
@@ -11,24 +10,22 @@ export default function Login() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  const getDeviceId = () => {
+  const MAX_DEVICES = 3
+
+  function getDeviceId() {
+
     let deviceId = localStorage.getItem('device_id')
 
     if (!deviceId) {
-      deviceId = uuidv4()
+      deviceId = crypto.randomUUID()
       localStorage.setItem('device_id', deviceId)
     }
 
     return deviceId
   }
 
-  const handleLogin = async (e:any) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+  const handleLogin = async () => {
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -36,42 +33,47 @@ export default function Login() {
     })
 
     if (error) {
-      setError('Неверный логин или пароль')
-      setLoading(false)
+      alert('Ошибка входа')
       return
     }
 
-    const userId = data.user.id
+    const user = data.user
     const deviceId = getDeviceId()
 
-    // проверяем устройство
-    const { data: existingDevice } = await supabase
+    // проверяем есть ли устройство
+    const { data: existing } = await supabase
       .from('user_devices')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .eq('device_id', deviceId)
-      .single()
+      .maybeSingle()
 
-    if (!existingDevice) {
+    if (existing) {
+      router.push('/')
+      return
+    }
 
-      const { data: devices } = await supabase
-        .from('user_devices')
-        .select('*')
-        .eq('user_id', userId)
+    // считаем устройства
+    const { data: devices } = await supabase
+      .from('user_devices')
+      .select('*')
+      .eq('user_id', user.id)
 
-      if (devices && devices.length >= 3) {
-        setError('Превышен лимит устройств (3)')
-        await supabase.auth.signOut()
-        setLoading(false)
-        return
-      }
+    if (devices.length >= MAX_DEVICES) {
 
-      await supabase.from('user_devices').insert({
-        user_id: userId,
+      await supabase.auth.signOut()
+
+      alert('Достигнут лимит устройств (3)')
+      return
+    }
+
+    // добавляем устройство
+    await supabase
+      .from('user_devices')
+      .insert({
+        user_id: user.id,
         device_id: deviceId
       })
-
-    }
 
     router.push('/')
   }
@@ -79,46 +81,34 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0f1115] text-white">
 
-      <form
-        onSubmit={handleLogin}
-        className="bg-zinc-900 p-8 rounded-xl w-full max-w-md space-y-4"
-      >
+      <div className="w-[320px] space-y-4">
 
-        <h1 className="text-2xl font-semibold text-center mb-4">
-          Вход
-        </h1>
+        <h1 className="text-2xl text-center">Вход</h1>
 
         <input
           type="email"
           placeholder="Email"
+          className="w-full p-3 bg-zinc-800 rounded"
           value={email}
           onChange={(e)=>setEmail(e.target.value)}
-          className="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
         />
 
         <input
           type="password"
           placeholder="Пароль"
+          className="w-full p-3 bg-zinc-800 rounded"
           value={password}
           onChange={(e)=>setPassword(e.target.value)}
-          className="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
         />
 
-        {error && (
-          <div className="text-red-400 text-sm">
-            {error}
-          </div>
-        )}
-
         <button
-          type="submit"
-          disabled={loading}
-          className="w-full p-3 bg-zinc-700 rounded hover:bg-zinc-600 transition"
+          onClick={handleLogin}
+          className="w-full p-3 bg-zinc-700 rounded hover:bg-zinc-600"
         >
-          {loading ? 'Вход...' : 'Войти'}
+          Войти
         </button>
 
-      </form>
+      </div>
 
     </div>
   )
