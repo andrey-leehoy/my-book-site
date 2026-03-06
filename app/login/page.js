@@ -5,76 +5,74 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
-
   const router = useRouter()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleLogin = async (e) => {
+  // получение ID устройства
+  function getDeviceId() {
+    let deviceId = localStorage.getItem('device_id')
+
+    if (!deviceId) {
+      deviceId = crypto.randomUUID()
+      localStorage.setItem('device_id', deviceId)
+    }
+
+    return deviceId
+  }
+
+  async function handleLogin(e: any) {
     e.preventDefault()
-    setLoading(true)
 
-    // 1️⃣ Логин
+    setLoading(true)
+    setError('')
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password,
+      password
     })
 
-    if (error || !data.user) {
-      alert(error?.message || 'Ошибка входа')
+    if (error) {
+      setError('Неверный email или пароль')
       setLoading(false)
       return
     }
 
     const user = data.user
+    const deviceId = getDeviceId()
 
-    // 2️⃣ Проверяем устройства
-    const { data: devices, error: devicesError } = await supabase
+    // получаем список устройств пользователя
+    const { data: devices } = await supabase
       .from('user_devices')
       .select('*')
       .eq('user_id', user.id)
 
-    if (devicesError) {
-      alert('Ошибка проверки устройств')
-      await supabase.auth.signOut()
-      setLoading(false)
-      return
+    const existingDevice = devices?.find(
+      (d) => d.device_id === deviceId
+    )
+
+    // если устройство новое
+    if (!existingDevice) {
+
+      if (devices && devices.length >= 3) {
+        setError('Достигнут лимит устройств (3)')
+        await supabase.auth.signOut()
+        setLoading(false)
+        return
+      }
+
+      await supabase
+        .from('user_devices')
+        .insert({
+          user_id: user.id,
+          device_id: deviceId
+        })
     }
 
-    // 3️⃣ Лимит 3 устройства
-    if (devices.length >= 3) {
-      await supabase.auth.signOut()
-      alert('Достигнут лимит устройств (3)')
-      setLoading(false)
-      return
-    }
-
-    // 4️⃣ Создаём device_id
-    const deviceId = crypto.randomUUID()
-
-    const { error: insertError } = await supabase
-      .from('user_devices')
-      .insert({
-        user_id: user.id,
-        device_id: deviceId,
-      })
-
-    if (insertError) {
-      alert('Ошибка сохранения устройства')
-      await supabase.auth.signOut()
-      setLoading(false)
-      return
-    }
-
-    // 5️⃣ Сохраняем в браузере
-    localStorage.setItem('device_id', deviceId)
-
-    // 6️⃣ Переход на главную
-    router.replace('/')
-
-    setLoading(false)
+    router.push('/')
   }
 
   return (
@@ -82,7 +80,7 @@ export default function LoginPage() {
 
       <form
         onSubmit={handleLogin}
-        className="bg-zinc-900 p-8 rounded-2xl w-80 space-y-4 border border-white/10"
+        className="w-full max-w-sm space-y-4 bg-[#151821] p-8 rounded-2xl"
       >
 
         <h1 className="text-2xl font-semibold text-center">
@@ -91,11 +89,11 @@ export default function LoginPage() {
 
         <input
           type="email"
-          placeholder="Логин"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 rounded-lg bg-zinc-800 border border-white/10"
           required
+          className="w-full px-4 py-3 bg-[#0f1115] border border-white/10 rounded-lg"
         />
 
         <input
@@ -103,14 +101,19 @@ export default function LoginPage() {
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 rounded-lg bg-zinc-800 border border-white/10"
           required
+          className="w-full px-4 py-3 bg-[#0f1115] border border-white/10 rounded-lg"
         />
 
+        {error && (
+          <div className="text-red-400 text-sm text-center">
+            {error}
+          </div>
+        )}
+
         <button
-          type="submit"
           disabled={loading}
-          className="w-full py-3 bg-white text-black rounded-lg hover:opacity-80 transition"
+          className="w-full py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition"
         >
           {loading ? 'Вход...' : 'Войти'}
         </button>
