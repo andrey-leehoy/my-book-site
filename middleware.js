@@ -1,26 +1,18 @@
 import { NextResponse } from 'next/server'
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 
-export async function middleware(req) {
-  const res = NextResponse.next()
+export function middleware(req) {
 
-  const supabase = createMiddlewareClient({
-    req,
-    res,
-  })
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const hasSession =
+    req.cookies.get('sb-access-token') ||
+    req.cookies.get('sb:token')
 
   const isChapter = req.nextUrl.pathname.startsWith('/chapter')
 
-  if (isChapter && !session) {
+  if (isChapter && !hasSession) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
-  return res
+  return NextResponse.next()
 }
 
 export const config = {
